@@ -36,6 +36,7 @@ app-config.json
 # Build outputs
 dist/
 build/
+api/index.mjs
 # Test coverage
 coverage/
 .nyc_output/
