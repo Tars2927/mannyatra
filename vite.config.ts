@@ -7,7 +7,7 @@ import { defineConfig } from "vite"
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    devServer({ entry: "api/boot.ts", exclude: [/^\/(?!api\/).*$/] }),
+    devServer({ entry: "api/app.ts", exclude: [/^\/(?!api\/).*$/] }),
     react(),
   ],
   server: {
