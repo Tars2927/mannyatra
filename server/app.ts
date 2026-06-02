@@ -34,6 +34,7 @@ app.use(
 const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
 
 // Cleanup stale entries every 5 minutes to prevent memory leaks
+// .unref() ensures this timer doesn't keep serverless functions alive
 setInterval(() => {
   const now = Date.now();
   for (const [key, record] of rateLimitMap) {
@@ -41,7 +42,7 @@ setInterval(() => {
       rateLimitMap.delete(key);
     }
   }
-}, 300_000);
+}, 300_000).unref();
 
 const rateLimiter = (limit: number, windowMs: number) => async (c: any, next: any) => {
   const ip = c.req.header("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
