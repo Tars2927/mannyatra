@@ -1,4 +1,4 @@
-import type { PreviewData } from "@contracts/types";
+import type { PreviewData } from "../../contracts/types";
 
 const WIKIPEDIA_TIMEOUT_MS = 5000;
 const SUMMARY_MAX_CHARS = 300;

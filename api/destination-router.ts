@@ -2,7 +2,7 @@ import { z } from "zod";
 import { eq, and, sql } from "drizzle-orm";
 import { createRouter, authedQuery } from "./middleware";
 import { getDb } from "./queries/connection";
-import { destinations } from "@db/schema";
+import { destinations } from "../db/schema";
 import { fetchDestinationPreview } from "./lib/wikipedia";
 
 // Zod schema for the preview object sent from the client

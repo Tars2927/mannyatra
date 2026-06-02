@@ -4,8 +4,8 @@ import * as cookie from "cookie";
 import crypto from "crypto";
 import { env } from "../lib/env";
 import { getSessionCookieOptions } from "../lib/cookies";
-import { Session } from "@contracts/constants";
-import { Errors } from "@contracts/errors";
+import { Session } from "../../contracts/constants";
+import { Errors } from "../../contracts/errors";
 import { signSessionToken, verifySessionToken } from "./session";
 import { findUserByUnionId, upsertUser } from "../queries/users";
 

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { createRouter, authedQuery } from "./middleware";
 import { getDb } from "./queries/connection";
-import { invites, inviteVotes, inviteComments, destinations } from "@db/schema";
+import { invites, inviteVotes, inviteComments, destinations } from "../db/schema";
 import crypto from "crypto";
 
 /** Generate a URL-safe random code */

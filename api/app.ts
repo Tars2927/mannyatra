@@ -7,7 +7,7 @@ import { appRouter } from "./router";
 import { createContext } from "./context";
 import { env } from "./lib/env";
 import { createOAuthCallbackHandler, createGoogleAuthRedirectHandler } from "./google/auth";
-import { Paths } from "@contracts/constants";
+import { Paths } from "../contracts/constants";
 import { fetchDestinationPreview } from "./lib/wikipedia";
 
 const app = new Hono();
