@@ -66,7 +66,7 @@ export default function Login() {
                 flight_takeoff
               </span>
             </div>
-            <h1 className="brand-title">BucketList</h1>
+            <h1 className="brand-title">Mannyatra</h1>
             <p className="brand-tagline">Dream. Plan. Do.</p>
           </div>
 

@@ -35,7 +35,7 @@ export default function Accomplished() {
           <div>
             <h2 style={{ fontFamily: "Manrope, sans-serif", fontSize: "28px", fontWeight: 700, color: "var(--on-surface)", margin: 0, lineHeight: 1.3 }}>Goals Accomplished 🎉</h2>
             <p style={{ fontFamily: "Manrope, sans-serif", fontSize: "16px", color: "var(--on-surface-variant)", marginTop: "8px" }}>
-              {accomplished.length === 0 ? "Start checking off your bucket list — every journey starts with a single step." : `You've crushed ${accomplished.length} goal${accomplished.length !== 1 ? "s" : ""}! Keep the momentum going.`}
+              {accomplished.length === 0 ? "Start checking off your travel list — every journey starts with a single step." : `You've crushed ${accomplished.length} goal${accomplished.length !== 1 ? "s" : ""}! Keep the momentum going.`}
             </p>
           </div>
         </div>

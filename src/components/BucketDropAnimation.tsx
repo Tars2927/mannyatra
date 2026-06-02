@@ -221,7 +221,7 @@ export default function BucketDropAnimation({ itemName, onComplete }: BucketDrop
             margin: 0,
           }}
         >
-          Added to Bucket List!
+          Added to My List!
         </p>
         <p
           style={{

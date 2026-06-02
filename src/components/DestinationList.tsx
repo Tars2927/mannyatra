@@ -380,7 +380,7 @@ export default function DestinationList({ filter }: DestinationListProps) {
         </span>
         <p style={{ fontFamily: "Manrope, sans-serif", fontSize: "15px", color: "var(--on-surface-variant)" }}>
           {filter === "All"
-            ? "Your bucket list is empty. Add your first destination above!"
+            ? "Your travel list is empty. Add your first destination above!"
             : `No destinations in "${statusLabels[filter] ?? filter}" yet.`}
         </p>
       </div>

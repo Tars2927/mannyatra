@@ -126,7 +126,7 @@ export default function Invite() {
             margin: 0,
           }}
         >
-          BucketList
+          Mannyatra
         </h1>
         <p style={{ fontSize: "13px", color: "var(--on-surface-variant)", marginTop: "4px" }}>
           You've been invited!
@@ -399,7 +399,7 @@ export default function Invite() {
         }}
       >
         <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>arrow_back</span>
-        Go to my BucketList
+        Go to my Mannyatra
       </a>
     </div>
   );

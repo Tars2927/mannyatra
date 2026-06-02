@@ -220,7 +220,7 @@ export default function Explore() {
               marginTop: "6px",
             }}
           >
-            Search any place worldwide or browse curated bucket list ideas.
+            Search any place worldwide or browse curated travel ideas.
           </p>
         </div>
 
@@ -590,7 +590,7 @@ function PlaceCard({
         style={{ fontSize: "13px" }}
       >
         <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>add</span>
-        Add to Bucket List
+        Add to My List
       </button>
     </div>
   );
@@ -682,7 +682,7 @@ function InspirationCard({
         style={{ fontSize: "13px" }}
       >
         <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>add</span>
-        Add to Bucket List
+        Add to My List
       </button>
     </div>
   );

@@ -6,8 +6,8 @@ export type SessionPayload = {
 };
 
 const JWT_ALG = "HS256";
-const JWT_ISSUER = "bucketlist-app";
-const JWT_AUDIENCE = "bucketlist-users";
+const JWT_ISSUER = "mannyatra-app";
+const JWT_AUDIENCE = "mannyatra-users";
 
 function getSecret(): Uint8Array {
   const secret = process.env.SESSION_SECRET || process.env.APP_SECRET || "";

@@ -35,7 +35,7 @@ export default function Sidebar() {
             letterSpacing: "-0.01em",
           }}
         >
-          BucketList
+          Mannyatra
         </h1>
         <p style={{ fontSize: "12px", color: "#546579", marginTop: "4px", fontWeight: 500 }}>
           Dream. Plan. Do.
