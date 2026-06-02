@@ -134,7 +134,11 @@ export async function authenticateRequest(headers: Headers) {
 // GET /api/auth/google → redirects browser to Google consent screen
 export function createGoogleAuthRedirectHandler() {
   return (c: Context) => {
-    const redirectUri = `${new URL(c.req.url).origin}/api/oauth/callback`;
+    const url = new URL(c.req.url);
+    const proto = c.req.header("x-forwarded-proto") || url.protocol.replace(":", "");
+    const host = c.req.header("x-forwarded-host") || url.host;
+    const origin = `${proto}://${host}`;
+    const redirectUri = `${origin}/api/oauth/callback`;
     const authUrl = createGoogleAuthUrl(redirectUri);
     return c.redirect(authUrl, 302);
   };
