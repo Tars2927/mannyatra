@@ -1,8 +1,3 @@
 {
-  "framework": "vite",
-  "outputDirectory": "dist/public",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ]
+  "buildCommand": "node vercel-build.mjs"
 }
