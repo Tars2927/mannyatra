@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, isNull } from "drizzle-orm";
 import { createRouter, authedQuery } from "./middleware";
 import { getDb } from "./queries/connection";
 import { destinations } from "../db/schema";
@@ -134,4 +134,43 @@ export const destinationRouter = createRouter({
 
       return { success: true };
     }),
+
+  /**
+   * Backfill coordinates (and images) for destinations missing lat/lon.
+   * Fetches from Wikipedia for each destination without coords.
+   */
+  backfillCoordinates: authedQuery.mutation(async ({ ctx }) => {
+    const db = getDb();
+    const userId = ctx.user.unionId;
+
+    // Find all destinations for this user that are missing coordinates
+    const missing = await db
+      .select()
+      .from(destinations)
+      .where(and(eq(destinations.userId, userId), isNull(destinations.lat)));
+
+    let updated = 0;
+    for (const dest of missing) {
+      try {
+        const preview = await fetchDestinationPreview(dest.destination);
+        const updateData: Record<string, unknown> = {};
+
+        if (preview.lat != null) updateData.lat = preview.lat;
+        if (preview.lon != null) updateData.lon = preview.lon;
+        if (!dest.imageUrl && preview.image) updateData.imageUrl = preview.image;
+
+        if (Object.keys(updateData).length > 0) {
+          await db
+            .update(destinations)
+            .set(updateData)
+            .where(eq(destinations.id, dest.id));
+          updated++;
+        }
+      } catch {
+        // Skip failed lookups
+      }
+    }
+
+    return { total: missing.length, updated };
+  }),
 });

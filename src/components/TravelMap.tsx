@@ -1,7 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { trpc } from "@/providers/trpc";
 import type { Destination } from "@db/schema";
 
 // Fix Leaflet's default icon path issue with bundlers
@@ -66,12 +67,23 @@ interface TravelMapProps {
 }
 
 export default function TravelMap({ destinations }: TravelMapProps) {
+  const utils = trpc.useUtils();
+  const backfillMutation = trpc.destination.backfillCoordinates.useMutation({
+    onSuccess: () => {
+      utils.destination.list.invalidate();
+    },
+  });
+  const [backfillResult, setBackfillResult] = useState<{ total: number; updated: number } | null>(null);
+
   // Only show destinations with coordinates
   const mappable = useMemo(
     () => destinations.filter((d) => d.lat != null && d.lon != null),
     [destinations]
   );
 
+  const missingCount = destinations.length - mappable.length;
+
+  // Show empty state only when ALL destinations are missing coordinates
   if (mappable.length === 0) {
     return (
       <div
@@ -96,84 +108,166 @@ export default function TravelMap({ destinations }: TravelMapProps) {
             marginBottom: "4px",
           }}
         >
-          No destinations on the map yet
+          {destinations.length > 0
+            ? `${destinations.length} destination${destinations.length > 1 ? "s" : ""} missing map pins`
+            : "No destinations on the map yet"}
         </p>
         <p
           style={{
             fontFamily: "Manrope, sans-serif",
             fontSize: "13px",
             color: "var(--outline)",
+            marginBottom: "16px",
+            textAlign: "center",
+            maxWidth: "280px",
           }}
         >
-          Add destinations to see them pinned worldwide!
+          {destinations.length > 0
+            ? "Click below to fetch coordinates for your existing destinations."
+            : "Add destinations to see them pinned worldwide!"}
         </p>
+
+        {destinations.length > 0 && (
+          <>
+            <button
+              onClick={async () => {
+                const result = await backfillMutation.mutateAsync();
+                setBackfillResult(result);
+              }}
+              disabled={backfillMutation.isPending}
+              className="neu-button-filled flex items-center gap-2"
+              style={{
+                borderRadius: "var(--radius-full)",
+                padding: "10px 24px",
+                fontSize: "13px",
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                {backfillMutation.isPending ? "hourglass_top" : "pin_drop"}
+              </span>
+              {backfillMutation.isPending ? "Fetching coordinates..." : "Add Map Pins"}
+            </button>
+
+            {backfillResult && (
+              <p
+                style={{
+                  fontFamily: "Manrope, sans-serif",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: "var(--primary)",
+                  marginTop: "12px",
+                }}
+              >
+                ✓ Updated {backfillResult.updated} of {backfillResult.total} destinations
+              </p>
+            )}
+          </>
+        )}
       </div>
     );
   }
 
   return (
-    <div
-      className="neu-extruded overflow-hidden"
-      style={{ borderRadius: "var(--radius-lg)", height: "500px" }}
-    >
-      <MapContainer
-        center={[20, 0]}
-        zoom={2}
-        scrollWheelZoom
-        style={{ height: "100%", width: "100%", borderRadius: "inherit" }}
-        attributionControl={false}
-      >
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-        />
-        <FitBounds destinations={mappable} />
-
-        {mappable.map((dest) => (
-          <Marker
-            key={dest.id}
-            position={[dest.lat!, dest.lon!]}
-            icon={createColoredIcon(dest.status)}
+    <div className="flex flex-col gap-3">
+      {/* Backfill banner when some destinations are missing coords */}
+      {missingCount > 0 && (
+        <div
+          className="neu-subtle flex items-center justify-between"
+          style={{
+            borderRadius: "var(--radius)",
+            padding: "10px 16px",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "Manrope, sans-serif",
+              fontSize: "12px",
+              color: "var(--on-surface-variant)",
+            }}
           >
-            <Popup>
-              <div style={{ fontFamily: "Manrope, sans-serif", minWidth: "180px" }}>
-                {dest.imageUrl && (
-                  <img
-                    src={dest.imageUrl}
-                    alt={dest.destination}
+            {missingCount} destination{missingCount > 1 ? "s" : ""} not on map
+          </span>
+          <button
+            onClick={() => backfillMutation.mutate()}
+            disabled={backfillMutation.isPending}
+            className="neu-button-filled flex items-center gap-1"
+            style={{
+              borderRadius: "var(--radius-full)",
+              padding: "6px 14px",
+              fontSize: "11px",
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+              {backfillMutation.isPending ? "hourglass_top" : "pin_drop"}
+            </span>
+            {backfillMutation.isPending ? "Fetching..." : "Fix Pins"}
+          </button>
+        </div>
+      )}
+
+      <div
+        className="neu-extruded overflow-hidden"
+        style={{ borderRadius: "var(--radius-lg)", height: "500px" }}
+      >
+        <MapContainer
+          center={[20, 0]}
+          zoom={2}
+          scrollWheelZoom
+          style={{ height: "100%", width: "100%", borderRadius: "inherit" }}
+          attributionControl={false}
+        >
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+          />
+          <FitBounds destinations={mappable} />
+
+          {mappable.map((dest) => (
+            <Marker
+              key={dest.id}
+              position={[dest.lat!, dest.lon!]}
+              icon={createColoredIcon(dest.status)}
+            >
+              <Popup>
+                <div style={{ fontFamily: "Manrope, sans-serif", minWidth: "180px" }}>
+                  {dest.imageUrl && (
+                    <img
+                      src={dest.imageUrl}
+                      alt={dest.destination}
+                      style={{
+                        width: "100%",
+                        height: "90px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        marginBottom: "8px",
+                      }}
+                    />
+                  )}
+                  <p style={{ fontSize: "14px", fontWeight: 700, margin: "0 0 4px" }}>
+                    {dest.goalTitle || dest.destination}
+                  </p>
+                  <p style={{ fontSize: "12px", color: "#6b7b8d", margin: "0 0 6px" }}>
+                    {dest.destination}
+                  </p>
+                  <span
                     style={{
-                      width: "100%",
-                      height: "90px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                      marginBottom: "8px",
+                      display: "inline-block",
+                      padding: "2px 10px",
+                      borderRadius: "12px",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      backgroundColor: statusMarkerColors[dest.status] + "20",
+                      color: statusMarkerColors[dest.status],
                     }}
-                  />
-                )}
-                <p style={{ fontSize: "14px", fontWeight: 700, margin: "0 0 4px" }}>
-                  {dest.goalTitle || dest.destination}
-                </p>
-                <p style={{ fontSize: "12px", color: "#6b7b8d", margin: "0 0 6px" }}>
-                  {dest.destination}
-                </p>
-                <span
-                  style={{
-                    display: "inline-block",
-                    padding: "2px 10px",
-                    borderRadius: "12px",
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    backgroundColor: statusMarkerColors[dest.status] + "20",
-                    color: statusMarkerColors[dest.status],
-                  }}
-                >
-                  {statusLabels[dest.status] ?? dest.status}
-                </span>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+                  >
+                    {statusLabels[dest.status] ?? dest.status}
+                  </span>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
     </div>
   );
 }
