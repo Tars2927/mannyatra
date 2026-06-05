@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router'
 import Home from './pages/Home'
+import Invites from './pages/Invites'
 import Explore from './pages/Explore'
 import Accomplished from './pages/Accomplished'
 import Settings from './pages/Settings'
@@ -11,6 +12,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/invites" element={<Invites />} />
       <Route path="/explore" element={<Explore />} />
       <Route path="/accomplished" element={<Accomplished />} />
       <Route path="/settings" element={<Settings />} />

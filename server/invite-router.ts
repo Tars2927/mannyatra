@@ -26,6 +26,75 @@ const inviteCodeSchema = z.string().min(1).max(16).regex(/^[A-Za-z0-9_-]+$/, "In
 
 export const inviteRouter = createRouter({
   /**
+   * List all invites created by the current user, with destination info + counts.
+   * Powers the /invites page.
+   */
+  listMine: authedQuery.query(async ({ ctx }) => {
+    const db = getDb();
+    const userId = ctx.user.unionId;
+
+    // Get all invites created by this user
+    const userInvites = await db
+      .select()
+      .from(invites)
+      .where(eq(invites.createdBy, userId));
+
+    if (userInvites.length === 0) return [];
+
+    // Enrich each invite with destination, vote counts, and comment count
+    const enriched = await Promise.all(
+      userInvites.map(async (inv) => {
+        const [dest] = await db
+          .select()
+          .from(destinations)
+          .where(eq(destinations.id, inv.destinationId))
+          .limit(1);
+
+        const votes = await db
+          .select()
+          .from(inviteVotes)
+          .where(eq(inviteVotes.inviteId, inv.id));
+
+        const comments = await db
+          .select()
+          .from(inviteComments)
+          .where(eq(inviteComments.inviteId, inv.id));
+
+        return {
+          id: inv.id,
+          code: inv.code,
+          createdAt: inv.createdAt,
+          destination: dest
+            ? {
+                id: dest.id,
+                name: dest.goalTitle || dest.destination,
+                place: dest.destination,
+                image: dest.imageUrl,
+                status: dest.status,
+              }
+            : null,
+          agreeCount: votes.filter((v) => v.vote === "agree").length,
+          disagreeCount: votes.filter((v) => v.vote === "disagree").length,
+          commentCount: comments.length,
+          votes: votes.slice(0, 8).map((v) => ({
+            id: v.id,
+            userName: v.userName,
+            userAvatar: v.userAvatar,
+            vote: v.vote,
+          })),
+          recentComments: comments.slice(-3).map((c) => ({
+            id: c.id,
+            userName: c.userName,
+            message: c.message,
+          })),
+        };
+      })
+    );
+
+    return enriched.filter((e) => e.destination !== null);
+  }),
+
+  /**
    * Create or retrieve an invite for a destination the user owns.
    * One invite per destination — returns existing code if already created.
    */

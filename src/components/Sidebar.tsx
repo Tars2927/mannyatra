@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { icon: "format_list_bulleted", label: "My List", path: "/", fillOnActive: true },
+  { icon: "mail",                 label: "Invites",      path: "/invites",      fillOnActive: true },
   { icon: "explore",              label: "Explore",      path: "/explore",      fillOnActive: true },
   { icon: "verified",             label: "Accomplished", path: "/accomplished", fillOnActive: true },
   { icon: "settings",             label: "Settings",     path: "/settings",     fillOnActive: false },

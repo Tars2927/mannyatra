@@ -1,7 +1,10 @@
+import { useNavigate } from "react-router";
 import { trpc } from "@/providers/trpc";
 
 export default function DashboardHeader() {
+  const navigate = useNavigate();
   const { data: stats } = trpc.destination.stats.useQuery();
+  const { data: invites } = trpc.invite.listMine.useQuery();
 
   return (
     <div
@@ -34,39 +37,87 @@ export default function DashboardHeader() {
         </p>
       </div>
 
-      {/* Quick stat pill */}
-      <div
-        className="neu-extruded flex items-center gap-3"
-        style={{ borderRadius: "var(--radius-full)", padding: "10px 20px", flexShrink: 0 }}
-      >
-        <span className="material-symbols-outlined" style={{ color: "var(--primary)", fontSize: "20px" }}>
-          flag
-        </span>
-        <div>
-          <span
-            style={{
-              display: "block",
-              fontFamily: "Manrope, sans-serif",
-              fontSize: "10px",
-              fontWeight: 600,
-              letterSpacing: "0.06em",
-              color: "var(--on-surface)",
-              textTransform: "uppercase",
-            }}
-          >
-            Total Goals
+      {/* Stat pills */}
+      <div className="flex items-center gap-3">
+        {/* Invites pill — clickable */}
+        <button
+          onClick={() => navigate("/invites")}
+          className="neu-extruded flex items-center gap-3 transition-all hover:scale-[1.03] active:scale-95"
+          style={{
+            borderRadius: "var(--radius-full)",
+            padding: "10px 20px",
+            flexShrink: 0,
+            border: "none",
+            cursor: "pointer",
+            backgroundColor: "var(--surface)",
+            fontFamily: "Manrope, sans-serif",
+          }}
+          title="View all invites"
+        >
+          <span className="material-symbols-outlined" style={{ color: "var(--tertiary)", fontSize: "20px" }}>
+            mail
           </span>
-          <span
-            style={{
-              fontFamily: "Manrope, sans-serif",
-              fontSize: "22px",
-              fontWeight: 700,
-              color: "var(--primary)",
-              lineHeight: 1,
-            }}
-          >
-            {stats?.total ?? 0}
+          <div>
+            <span
+              style={{
+                display: "block",
+                fontSize: "10px",
+                fontWeight: 600,
+                letterSpacing: "0.06em",
+                color: "var(--on-surface)",
+                textTransform: "uppercase",
+                textAlign: "left",
+              }}
+            >
+              Invites
+            </span>
+            <span
+              style={{
+                fontSize: "22px",
+                fontWeight: 700,
+                color: "var(--tertiary)",
+                lineHeight: 1,
+              }}
+            >
+              {invites?.length ?? 0}
+            </span>
+          </div>
+        </button>
+
+        {/* Total Goals pill */}
+        <div
+          className="neu-extruded flex items-center gap-3"
+          style={{ borderRadius: "var(--radius-full)", padding: "10px 20px", flexShrink: 0 }}
+        >
+          <span className="material-symbols-outlined" style={{ color: "var(--primary)", fontSize: "20px" }}>
+            flag
           </span>
+          <div>
+            <span
+              style={{
+                display: "block",
+                fontFamily: "Manrope, sans-serif",
+                fontSize: "10px",
+                fontWeight: 600,
+                letterSpacing: "0.06em",
+                color: "var(--on-surface)",
+                textTransform: "uppercase",
+              }}
+            >
+              Total Goals
+            </span>
+            <span
+              style={{
+                fontFamily: "Manrope, sans-serif",
+                fontSize: "22px",
+                fontWeight: 700,
+                color: "var(--primary)",
+                lineHeight: 1,
+              }}
+            >
+              {stats?.total ?? 0}
+            </span>
+          </div>
         </div>
       </div>
     </div>
