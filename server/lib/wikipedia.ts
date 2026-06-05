@@ -3,9 +3,6 @@ import type { PreviewData } from "../../contracts/types";
 const WIKIPEDIA_TIMEOUT_MS = 5000;
 const SUMMARY_MAX_CHARS = 300;
 
-// Fallback image when no Wikipedia image is found
-const FALLBACK_IMAGE = "";
-
 // Wikipedia API base
 const WIKI_API = "https://en.wikipedia.org/api/rest_v1";
 const WIKI_SEARCH = "https://en.wikipedia.org/w/api.php";
@@ -44,6 +41,46 @@ async function searchTitle(destination: string): Promise<string | null> {
   return data?.query?.search?.[0]?.title ?? null;
 }
 
+/**
+ * Fallback image lookup via Wikipedia's pageimages API.
+ * Catches cases where the summary API has no image but the article does.
+ */
+async function fetchPageImage(title: string): Promise<string> {
+  const params = new URLSearchParams({
+    action: "query",
+    titles: title,
+    prop: "pageimages",
+    pithumbsize: "800",
+    format: "json",
+    origin: "*",
+  });
+
+  try {
+    const res = await fetchWithTimeout(`${WIKI_SEARCH}?${params}`, 3000);
+    if (!res.ok) return "";
+
+    const data = await res.json() as {
+      query?: { pages?: Record<string, { thumbnail?: { source?: string } }> };
+    };
+
+    const pages = data?.query?.pages;
+    if (!pages) return "";
+    const page = Object.values(pages)[0];
+    return sanitizeUrl(page?.thumbnail?.source) || "";
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Generate an Unsplash-powered fallback image URL for a destination.
+ * Uses Unsplash Source (free, no API key needed).
+ */
+function getUnsplashFallback(destination: string): string {
+  const query = encodeURIComponent(destination.trim());
+  return `https://source.unsplash.com/800x600/?${query},travel,landscape`;
+}
+
 /** Step 2: Fetch the summary for a known page title. */
 async function fetchSummary(title: string): Promise<PreviewData | null> {
   const encoded = encodeURIComponent(title);
@@ -64,10 +101,20 @@ async function fetchSummary(title: string): Promise<PreviewData | null> {
   // Reject disambiguation pages — not useful as destination previews
   if (d.type === "disambiguation") return null;
 
-  const image =
+  // Try summary API images first
+  let image =
     sanitizeUrl(d.originalimage?.source) ||
-    sanitizeUrl(d.thumbnail?.source) ||
-    FALLBACK_IMAGE;
+    sanitizeUrl(d.thumbnail?.source);
+
+  // Fallback: try Wikipedia's pageimages API
+  if (!image) {
+    image = await fetchPageImage(title);
+  }
+
+  // Final fallback: Unsplash photo search
+  if (!image) {
+    image = getUnsplashFallback(d.title || title);
+  }
 
   const lat = typeof d.coordinates?.lat === "number" ? d.coordinates.lat : null;
   const lon = typeof d.coordinates?.lon === "number" ? d.coordinates.lon : null;
@@ -108,13 +155,13 @@ export async function fetchDestinationPreview(destination: string): Promise<Prev
     name: destination,
     subtitle: "",
     summary: "",
-    image: FALLBACK_IMAGE,
+    image: destination.trim() ? getUnsplashFallback(destination) : "",
     lat: null,
     lon: null,
     url: "",
   };
 
-  if (!destination.trim()) return { ...fallback, name: "" };
+  if (!destination.trim()) return { ...fallback, name: "", image: "" };
 
   try {
     const title = await searchTitle(destination);
