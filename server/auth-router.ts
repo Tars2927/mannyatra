@@ -22,11 +22,19 @@ const DEV_USER = {
 
 export const authRouter = isDevBypass
   ? createRouter({
-      me: publicQuery.query(() => DEV_USER),
+      me: publicQuery.query(() => ({
+        name: DEV_USER.name,
+        email: DEV_USER.email,
+        avatar: DEV_USER.avatar,
+      })),
       logout: publicQuery.mutation(() => ({ success: true })),
     })
   : createRouter({
-      me: authedQuery.query((opts) => opts.ctx.user),
+      me: authedQuery.query((opts) => ({
+        name: opts.ctx.user.name,
+        email: opts.ctx.user.email,
+        avatar: opts.ctx.user.avatar,
+      })),
       logout: authedQuery.mutation(async ({ ctx }) => {
         const opts = getSessionCookieOptions(ctx.req.headers);
         ctx.resHeaders.append(
