@@ -3,19 +3,99 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="Mannyatra — Dream. Plan. Do. Track your travel destinations and bucket list goals with a beautiful neumorphic interface." />
+
+    <!-- Primary SEO -->
+    <title>Mannyatra — Dream. Plan. Do. | Travel Bucket List App</title>
+    <meta name="description" content="Plan your dream destinations, track your travel bucket list, and share trip invites with friends. Mannyatra helps you dream, plan, and accomplish your travel goals with a beautiful interface." />
+    <meta name="keywords" content="bucket list, travel planner, travel goals, dream destinations, trip tracker, travel bucket list app, mannyatra, travel organizer, wanderlust, trip planner" />
+    <meta name="author" content="Mannyatra" />
+    <link rel="canonical" href="https://mannyatra.in/" />
+
+    <!-- Open Graph / Facebook / WhatsApp / LinkedIn -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mannyatra.in/" />
+    <meta property="og:title" content="Mannyatra — Dream. Plan. Do." />
+    <meta property="og:description" content="Plan your dream destinations, track your travel bucket list, and share trip invites with friends." />
+    <meta property="og:image" content="https://mannyatra.in/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Mannyatra" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mannyatra — Dream. Plan. Do." />
+    <meta name="twitter:description" content="Plan your dream destinations, track your travel bucket list, and share trip invites with friends." />
+    <meta name="twitter:image" content="https://mannyatra.in/og-image.png" />
+
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#f7f9fc" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Mannyatra" />
+
+    <!-- Structured Data (JSON-LD) — helps Google show rich results -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Mannyatra",
+      "alternateName": "Mannyatra Travel Bucket List",
+      "url": "https://mannyatra.in",
+      "description": "Plan your dream destinations, track your travel bucket list, and share trip invites with friends. Beautiful neumorphic interface for organizing travel goals.",
+      "applicationCategory": "TravelApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "Mannyatra"
+      },
+      "featureList": [
+        "Travel bucket list tracking",
+        "Destination planning with live Wikipedia previews",
+        "Trip invite sharing with friends",
+        "Progress tracking from Planning to Accomplished",
+        "Beautiful neumorphic design"
+      ],
+      "screenshot": "https://mannyatra.in/og-image.png"
+    }
+    </script>
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
-    <title>Mannyatra — Dream. Plan. Do.</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Noscript fallback — gives search engines content to index -->
+    <noscript>
+      <div style="font-family: Manrope, sans-serif; max-width: 800px; margin: 60px auto; padding: 20px; color: #2d3748;">
+        <h1>Mannyatra — Dream. Plan. Do.</h1>
+        <p>Mannyatra is a free travel bucket list app that helps you plan dream destinations, track your travel goals, and share trip invites with friends.</p>
+        <h2>Features</h2>
+        <ul>
+          <li><strong>Dream</strong> — Search and discover destinations with live Wikipedia previews, photos, and maps.</li>
+          <li><strong>Plan</strong> — Organize your bucket list with categories, dates, and status tracking.</li>
+          <li><strong>Do</strong> — Mark destinations as accomplished and celebrate your travel journey.</li>
+          <li><strong>Share</strong> — Create invite links for trips and let friends vote and comment.</li>
+        </ul>
+        <h2>Get Started</h2>
+        <p>Sign in with Google to start building your travel bucket list today. It's free, beautiful, and built for travelers who dream big.</p>
+        <p><a href="/login">Sign in to Mannyatra</a></p>
+      </div>
+    </noscript>
   </body>
 </html>
