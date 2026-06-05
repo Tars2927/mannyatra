@@ -486,6 +486,21 @@
   100% { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Leaflet marker overrides ────────────────────────────────────────────── */
+.travel-map-marker {
+  background: none !important;
+  border: none !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 16px !important;
+  box-shadow: -4px -4px 10px rgba(255,255,255,0.8), 4px 4px 10px #D1D9E6 !important;
+}
+
+.leaflet-popup-tip {
+  box-shadow: 2px 2px 6px #D1D9E6 !important;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    MOBILE RESPONSIVE OVERRIDES
    ═══════════════════════════════════════════════════════════════════════════ */

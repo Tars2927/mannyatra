@@ -81,6 +81,8 @@ export const destinationRouter = createRouter({
         startDate: input.startDate ?? null,
         endDate: input.endDate ?? null,
         imageUrl,
+        lat: preview.lat,
+        lon: preview.lon,
       });
 
       return { success: true, preview, imageUrl };

@@ -6,6 +6,7 @@ import {
   text,
   timestamp,
   integer,
+  real,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["user", "admin"]);
@@ -40,6 +41,8 @@ export const destinations = pgTable("destinations", {
   startDate: varchar("start_date", { length: 20 }),
   endDate: varchar("end_date", { length: 20 }),
   imageUrl: text("image_url"),
+  lat: real("lat"),
+  lon: real("lon"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
