@@ -38,11 +38,55 @@ export const destinationRouter = createRouter({
       .where(eq(destinations.userId, userId));
 
     const total = all.length;
+    const planning = all.filter((d) => d.status === "Planning").length;
+    const booked = all.filter((d) => d.status === "Booked").length;
+    const inProgress = all.filter((d) => d.status === "InProgress").length;
     const done = all.filter((d) => d.status === "Accomplished").length;
     const avg = total === 0 ? 0 : Math.round((done / total) * 100);
-    const people = new Set(all.map((d) => d.userId)).size || 1;
 
-    return { total, done, people, avg };
+    // Count unique countries from destination names (rough heuristic)
+    const withCoords = all.filter((d) => d.lat != null && d.lon != null);
+
+    // Continent detection from coordinates
+    const continents = new Set<string>();
+    for (const d of withCoords) {
+      const lat = d.lat!;
+      const lon = d.lon!;
+      if (lat > 35 && lon > -30 && lon < 60) continents.add("Europe");
+      else if (lat > 0 && lon > 60 && lon < 150) continents.add("Asia");
+      else if (lat < 0 && lon > 100 && lon < 180) continents.add("Oceania");
+      else if (lat < 35 && lat > -35 && lon > -20 && lon < 55) continents.add("Africa");
+      else if (lat > 10 && lon > -170 && lon < -30) continents.add("North America");
+      else if (lat < 15 && lon > -90 && lon < -30) continents.add("South America");
+      else if (lat < -60) continents.add("Antarctica");
+      else continents.add("Other");
+    }
+
+    // Category breakdown
+    const categories: Record<string, number> = {};
+    for (const d of all) {
+      const cat = d.category ?? "Travel";
+      categories[cat] = (categories[cat] ?? 0) + 1;
+    }
+
+    // Travel score: weighted metric
+    // +10 per destination, +20 per accomplished, +15 per continent, +5 per category
+    const travelScore =
+      total * 10 + done * 20 + continents.size * 15 + Object.keys(categories).length * 5;
+
+    return {
+      total,
+      planning,
+      booked,
+      inProgress,
+      done,
+      avg,
+      continents: continents.size,
+      continentList: Array.from(continents),
+      categories,
+      mappedCount: withCoords.length,
+      travelScore,
+    };
   }),
 
   create: authedQuery

@@ -6,6 +6,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import StatusFilters, { type StatusFilter } from "@/components/StatusFilters";
 import AddDestinationForm from "@/components/AddDestinationForm";
 import DestinationList from "@/components/DestinationList";
+import TravelStats from "@/components/TravelStats";
 import BottomNav from "@/components/BottomNav";
 
 // Lazy load the map so Leaflet doesn't bloat initial bundle
@@ -44,6 +45,13 @@ export default function Home() {
             activeFilter={activeFilter}
             onSuccess={() => {}}
           />
+        )}
+
+        {/* ── Travel Stats ────────────────────────────────────── */}
+        {activeFilter === "All" && (
+          <div className="mb-6">
+            <TravelStats />
+          </div>
         )}
 
         {/* ── Travel Map Toggle ──────────────────────────────── */}
