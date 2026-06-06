@@ -133,7 +133,7 @@ export default function BucketDropAnimation({ itemName, onComplete }: BucketDrop
               left: 0,
               right: 0,
               height: phase === "splash" || phase === "done" ? "50%" : "20%",
-              background: "rgba(82, 95, 114, 0.2)",
+              background: "var(--sidebar-badge-bg)",
               borderRadius: "0 0 18px 18px",
               transition: "height 0.6s ease",
             }}

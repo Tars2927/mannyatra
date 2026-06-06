@@ -1,11 +1,13 @@
 import { useAuth } from "@/hooks/useAuth";
 import { trpc } from "@/providers/trpc";
+import { useTheme } from "@/hooks/useTheme";
 import Sidebar from "@/components/Sidebar";
 import BottomNav from "@/components/BottomNav";
 
 export default function Settings() {
   const { user, isLoading, logout } = useAuth({ redirectOnUnauthenticated: true });
   const { data: stats } = trpc.destination.stats.useQuery();
+  const { theme, toggleTheme } = useTheme();
 
   if (isLoading) {
     return (
@@ -20,6 +22,8 @@ export default function Settings() {
     { icon: "verified", label: "Accomplished", value: stats?.done ?? 0 },
     { icon: "cached", label: "In Progress", value: (stats?.total ?? 0) - (stats?.done ?? 0) },
   ];
+
+  const isDark = theme === "dark";
 
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: "var(--surface)" }}>
@@ -69,21 +73,82 @@ export default function Settings() {
               ))}
             </div>
 
-            {/* Dark mode toggle placeholder */}
+            {/* ── Dark Mode Toggle ────────────────────────────── */}
             <div className="neu-extruded flex items-center justify-between" style={{ borderRadius: "var(--radius)", padding: "20px 24px" }}>
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined" style={{ fontSize: "22px", color: "var(--on-surface-variant)" }}>dark_mode</span>
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    fontSize: "22px",
+                    color: isDark ? "var(--primary)" : "var(--on-surface-variant)",
+                    fontVariationSettings: isDark ? "'FILL' 1" : "'FILL' 0",
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  {isDark ? "dark_mode" : "light_mode"}
+                </span>
                 <div>
-                  <p style={{ fontFamily: "Manrope, sans-serif", fontSize: "15px", fontWeight: 600, color: "var(--on-surface)", margin: 0 }}>Dark Mode</p>
-                  <p style={{ fontFamily: "Manrope, sans-serif", fontSize: "12px", color: "var(--on-surface-variant)", margin: 0, marginTop: "2px" }}>Toggle the dark theme</p>
+                  <p style={{ fontFamily: "Manrope, sans-serif", fontSize: "15px", fontWeight: 600, color: "var(--on-surface)", margin: 0 }}>
+                    {isDark ? "Dark Mode" : "Light Mode"}
+                  </p>
+                  <p style={{ fontFamily: "Manrope, sans-serif", fontSize: "12px", color: "var(--on-surface-variant)", margin: 0, marginTop: "2px" }}>
+                    {isDark ? "Easier on the eyes at night" : "Bright and clean appearance"}
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="neu-chip" style={{ padding: "3px 10px", fontSize: "10px", cursor: "default", fontWeight: 700, color: "var(--primary)" }}>Coming Soon</span>
-                <div className="neu-inset" style={{ width: "44px", height: "24px", borderRadius: "var(--radius-full)", opacity: 0.5, cursor: "not-allowed" }}>
-                  <div style={{ width: "18px", height: "18px", borderRadius: "50%", backgroundColor: "var(--outline-variant)", margin: "3px" }} />
+
+              {/* Neumorphic Toggle Switch */}
+              <button
+                id="theme-toggle"
+                onClick={toggleTheme}
+                className={isDark ? "neu-inset" : "neu-inset"}
+                aria-label="Toggle dark mode"
+                style={{
+                  position: "relative",
+                  width: "56px",
+                  height: "30px",
+                  borderRadius: "var(--radius-full)",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                  background: isDark
+                    ? "linear-gradient(135deg, var(--primary-container), var(--primary))"
+                    : "var(--surface)",
+                  transition: "all 0.35s ease",
+                }}
+              >
+                {/* Knob */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "3px",
+                    left: isDark ? "29px" : "3px",
+                    width: "24px",
+                    height: "24px",
+                    borderRadius: "50%",
+                    background: isDark ? "var(--surface)" : "var(--outline-variant)",
+                    boxShadow: isDark
+                      ? "2px 2px 6px rgba(0,0,0,0.4), -1px -1px 4px rgba(60,63,72,0.3)"
+                      : "-2px -2px 6px var(--shadow-light), 2px 2px 6px var(--shadow-dark)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                  }}
+                >
+                  <span
+                    className="material-symbols-outlined"
+                    style={{
+                      fontSize: "14px",
+                      color: isDark ? "var(--primary)" : "var(--on-surface-variant)",
+                      fontVariationSettings: "'FILL' 1",
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {isDark ? "dark_mode" : "light_mode"}
+                  </span>
                 </div>
-              </div>
+              </button>
             </div>
 
             {/* App info */}
@@ -95,11 +160,17 @@ export default function Settings() {
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between">
                   <span style={{ fontSize: "13px", color: "var(--on-surface-variant)" }}>Version</span>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--on-surface)" }}>1.0.0-beta</span>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--on-surface)" }}>1.1.0-beta</span>
                 </div>
                 <div className="flex justify-between">
                   <span style={{ fontSize: "13px", color: "var(--on-surface-variant)" }}>Built with</span>
                   <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--on-surface)" }}>React + Hono + tRPC</span>
+                </div>
+                <div className="flex justify-between">
+                  <span style={{ fontSize: "13px", color: "var(--on-surface-variant)" }}>Theme</span>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--primary)" }}>
+                    {isDark ? "🌙 Dark" : "☀️ Light"}
+                  </span>
                 </div>
               </div>
             </div>

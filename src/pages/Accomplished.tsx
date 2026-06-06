@@ -79,7 +79,7 @@ function AccomplishedCard({ dest }: { dest: Destination }) {
             <span className="material-symbols-outlined" style={{ fontSize: "36px", opacity: 0.4 }}>image</span>
           </div>
         )}
-        <div className="absolute top-3 right-3 flex items-center gap-1 px-3 py-1 rounded-full" style={{ backgroundColor: "rgba(82,95,114,0.9)", backdropFilter: "blur(8px)", color: "#fff", fontSize: "11px", fontWeight: 600, fontFamily: "Manrope, sans-serif" }}>
+        <div className="absolute top-3 right-3 flex items-center gap-1 px-3 py-1 rounded-full" style={{ backgroundColor: "var(--sidebar-badge-bg)", backdropFilter: "blur(8px)", color: "#fff", fontSize: "11px", fontWeight: 600, fontFamily: "Manrope, sans-serif" }}>
           <span className="material-symbols-outlined" style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}>verified</span>Done
         </div>
       </div>

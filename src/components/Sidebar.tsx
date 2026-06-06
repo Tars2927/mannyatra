@@ -19,7 +19,7 @@ export default function Sidebar() {
     <aside
       className="hidden md:flex flex-col h-screen w-72 shrink-0 sticky top-0 z-20 neu-sidenav"
       style={{
-        backgroundColor: "#A3B1C6",
+        backgroundColor: "var(--sidebar-bg)",
         borderRadius: "0 40px 40px 0",
         padding: "32px 0",
       }}
@@ -31,14 +31,14 @@ export default function Sidebar() {
             fontFamily: "Manrope, sans-serif",
             fontSize: "20px",
             fontWeight: 900,
-            color: "#1a2332",
+            color: "var(--sidebar-text)",
             margin: 0,
             letterSpacing: "-0.01em",
           }}
         >
           Mannyatra
         </h1>
-        <p style={{ fontSize: "12px", color: "#546579", marginTop: "4px", fontWeight: 500 }}>
+        <p style={{ fontSize: "12px", color: "var(--sidebar-text-dim)", marginTop: "4px", fontWeight: 500 }}>
           Dream. Plan. Do.
         </p>
       </div>
@@ -56,8 +56,8 @@ export default function Sidebar() {
                 isActive ? "neu-sidenav-active" : "neu-sidenav-inactive"
               )}
               style={{
-                backgroundColor: "#A3B1C6",
-                color: isActive ? "#1a2332" : "#546579",
+                backgroundColor: "var(--sidebar-bg)",
+                color: isActive ? "var(--sidebar-text)" : "var(--sidebar-text-dim)",
                 fontWeight: isActive ? 700 : 500,
                 border: "none",
                 cursor: "pointer",
@@ -92,7 +92,7 @@ export default function Sidebar() {
             borderRadius: "50%",
             overflow: "hidden",
             flexShrink: 0,
-            backgroundColor: "#A3B1C6",
+            backgroundColor: "var(--sidebar-bg)",
           }}
         >
           {user?.avatar ? (
@@ -109,7 +109,7 @@ export default function Sidebar() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#546579",
+                color: "var(--sidebar-text-dim)",
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>
@@ -126,7 +126,7 @@ export default function Sidebar() {
               fontFamily: "Manrope, sans-serif",
               fontWeight: 700,
               fontSize: "14px",
-              color: "#1a2332",
+              color: "var(--sidebar-text)",
               margin: 0,
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -135,7 +135,7 @@ export default function Sidebar() {
           >
             {user?.name ?? "Traveler"}
           </p>
-          <p style={{ fontSize: "11px", color: "#546579", margin: 0 }}>Explorer</p>
+          <p style={{ fontSize: "11px", color: "var(--sidebar-text-dim)", margin: 0 }}>Explorer</p>
         </div>
 
         {/* Logout icon button */}
@@ -144,7 +144,7 @@ export default function Sidebar() {
           title="Logout"
           className="neu-sidenav-inactive"
           style={{
-            backgroundColor: "#A3B1C6",
+            backgroundColor: "var(--sidebar-bg)",
             border: "none",
             cursor: "pointer",
             width: "36px",
@@ -153,7 +153,7 @@ export default function Sidebar() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#ba1a1a",
+            color: "var(--error)",
             flexShrink: 0,
             transition: "transform 0.2s",
           }}

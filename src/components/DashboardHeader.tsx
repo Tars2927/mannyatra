@@ -1,10 +1,14 @@
 import { useNavigate } from "react-router";
 import { trpc } from "@/providers/trpc";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function DashboardHeader() {
   const navigate = useNavigate();
   const { data: stats } = trpc.destination.stats.useQuery();
   const { data: invites } = trpc.invite.listMine.useQuery();
+  const { theme, toggleTheme } = useTheme();
+
+  const isDark = theme === "dark";
 
   return (
     <div
@@ -37,8 +41,39 @@ export default function DashboardHeader() {
         </p>
       </div>
 
-      {/* Stat pills */}
+      {/* Stat pills + Theme toggle */}
       <div className="flex items-center gap-3">
+        {/* Theme toggle — compact icon button */}
+        <button
+          id="header-theme-toggle"
+          onClick={toggleTheme}
+          className="neu-extruded flex items-center justify-center transition-all hover:scale-[1.06] active:scale-95"
+          style={{
+            width: "44px",
+            height: "44px",
+            borderRadius: "50%",
+            border: "none",
+            cursor: "pointer",
+            backgroundColor: "var(--surface)",
+            flexShrink: 0,
+          }}
+          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          aria-label="Toggle theme"
+        >
+          <span
+            className="material-symbols-outlined"
+            style={{
+              fontSize: "20px",
+              color: isDark ? "#f5c842" : "var(--on-surface-variant)",
+              fontVariationSettings: "'FILL' 1",
+              transition: "color 0.3s ease, transform 0.3s ease",
+              transform: isDark ? "rotate(-20deg)" : "rotate(0deg)",
+            }}
+          >
+            {isDark ? "light_mode" : "dark_mode"}
+          </span>
+        </button>
+
         {/* Invites pill — clickable */}
         <button
           onClick={() => navigate("/invites")}

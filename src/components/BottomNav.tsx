@@ -17,10 +17,10 @@ export default function BottomNav() {
     <nav
       className="fixed bottom-0 left-0 right-0 md:hidden z-50 flex items-center justify-around"
       style={{
-        backgroundColor: "#A3B1C6",
+        backgroundColor: "var(--sidebar-bg)",
         borderRadius: "30px 30px 0 0",
         padding: "12px 8px 20px",
-        boxShadow: "0 -6px 20px #8b97a9, 0 -2px 10px #bbcbdf",
+        boxShadow: "0 -6px 20px var(--sidebar-shadow-dark), 0 -2px 10px var(--sidebar-shadow-light)",
       }}
     >
       {NAV_ITEMS.map((item) => {
@@ -34,7 +34,7 @@ export default function BottomNav() {
               isActive ? "neu-sidenav-active" : "neu-sidenav-inactive"
             )}
             style={{
-              backgroundColor: "#A3B1C6",
+              backgroundColor: "var(--sidebar-bg)",
               border: "none",
               cursor: "pointer",
               minWidth: "64px",
@@ -44,7 +44,7 @@ export default function BottomNav() {
               className="material-symbols-outlined"
               style={{
                 fontSize: "22px",
-                color: isActive ? "#1a2332" : "#546579",
+                color: isActive ? "var(--sidebar-text)" : "var(--sidebar-text-dim)",
                 fontVariationSettings: item.fillOnActive && isActive ? "'FILL' 1" : "'FILL' 0",
               }}
             >
@@ -55,7 +55,7 @@ export default function BottomNav() {
                 fontFamily: "Manrope, sans-serif",
                 fontSize: "10px",
                 fontWeight: isActive ? 700 : 500,
-                color: isActive ? "#1a2332" : "#546579",
+                color: isActive ? "var(--sidebar-text)" : "var(--sidebar-text-dim)",
               }}
             >
               {item.label}
