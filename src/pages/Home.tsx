@@ -39,23 +39,37 @@ export default function Home() {
         <DashboardHeader />
         <StatusFilters active={activeFilter} onChange={setActiveFilter} />
 
-        {/* Form + Live Preview — only show on "All" tab */}
+        {/* ── Add Destination Section ──────────────────────── */}
         {activeFilter === "All" && (
-          <AddDestinationForm
-            activeFilter={activeFilter}
-            onSuccess={() => {}}
-          />
+          <section className="mb-10">
+            <div className="section-label">
+              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>add_circle</span>
+              New Destination
+            </div>
+            <AddDestinationForm
+              activeFilter={activeFilter}
+              onSuccess={() => {}}
+            />
+          </section>
         )}
 
-        {/* ── Travel Stats ────────────────────────────────────── */}
+        {/* ── Travel Stats Section ─────────────────────────── */}
         {activeFilter === "All" && (
-          <div className="mb-6">
+          <section className="mb-10">
+            <div className="section-label">
+              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>analytics</span>
+              Your Stats
+            </div>
             <TravelStats />
-          </div>
+          </section>
         )}
 
-        {/* ── Travel Map Toggle ──────────────────────────────── */}
-        <div className="mb-6">
+        {/* ── Travel Map Section ───────────────────────────── */}
+        <section className="mb-10">
+          <div className="section-label">
+            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>map</span>
+            Travel Map
+          </div>
           <button
             onClick={() => setShowMap(!showMap)}
             className="neu-subtle flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-95"
@@ -110,9 +124,16 @@ export default function Home() {
               </Suspense>
             </div>
           )}
-        </div>
+        </section>
 
-        <DestinationList filter={activeFilter} />
+        {/* ── Destinations List Section ────────────────────── */}
+        <section>
+          <div className="section-label">
+            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>format_list_bulleted</span>
+            Your Destinations
+          </div>
+          <DestinationList filter={activeFilter} />
+        </section>
       </main>
 
       <BottomNav />

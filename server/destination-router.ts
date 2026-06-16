@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq, and, sql, isNull } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { createRouter, authedQuery } from "./middleware";
 import { getDb } from "./queries/connection";
 import { destinations } from "../db/schema";
@@ -181,27 +181,33 @@ export const destinationRouter = createRouter({
 
   /**
    * Backfill coordinates (and images) for destinations missing lat/lon.
-   * Fetches from Wikipedia for each destination without coords.
+   * Also fixes dead Unsplash Source URLs.
    */
   backfillCoordinates: authedQuery.mutation(async ({ ctx }) => {
     const db = getDb();
     const userId = ctx.user.unionId;
 
-    // Find all destinations for this user that are missing coordinates
-    const missing = await db
+    // Find all destinations for this user that are missing coordinates OR have dead image URLs
+    const all = await db
       .select()
       .from(destinations)
-      .where(and(eq(destinations.userId, userId), isNull(destinations.lat)));
+      .where(eq(destinations.userId, userId));
+
+    const needsFix = all.filter(
+      (d) => d.lat == null || !d.imageUrl || d.imageUrl.includes("source.unsplash.com")
+    );
 
     let updated = 0;
-    for (const dest of missing) {
+    for (const dest of needsFix) {
       try {
         const preview = await fetchDestinationPreview(dest.destination);
         const updateData: Record<string, unknown> = {};
 
-        if (preview.lat != null) updateData.lat = preview.lat;
-        if (preview.lon != null) updateData.lon = preview.lon;
-        if (!dest.imageUrl && preview.image) updateData.imageUrl = preview.image;
+        if (preview.lat != null && dest.lat == null) updateData.lat = preview.lat;
+        if (preview.lon != null && dest.lon == null) updateData.lon = preview.lon;
+        if ((!dest.imageUrl || dest.imageUrl.includes("source.unsplash.com")) && preview.image) {
+          updateData.imageUrl = preview.image;
+        }
 
         if (Object.keys(updateData).length > 0) {
           await db
@@ -215,6 +221,6 @@ export const destinationRouter = createRouter({
       }
     }
 
-    return { total: missing.length, updated };
+    return { total: needsFix.length, updated };
   }),
 });

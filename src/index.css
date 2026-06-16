@@ -252,6 +252,28 @@
     text-transform: uppercase;
     color: var(--on-surface-variant);
   }
+
+  /* ── Section Label — used as a visual anchor for dashboard sections ──── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    margin-bottom: 16px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--outline-variant);
+    opacity: 0.5;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -615,3 +637,20 @@
     --space-inner:     12px;
   }
 }
+
+/* ── Mobile preview expand/collapse ──────────────────────────────────────── */
+@keyframes previewSlideDown {
+  0%   { opacity: 0; max-height: 0; transform: translateY(-8px); }
+  100% { opacity: 1; max-height: 600px; transform: translateY(0); }
+}
+
+.mobile-preview-enter {
+  animation: previewSlideDown 0.35s ease-out forwards;
+  overflow: hidden;
+}
+
+/* ── Ensure images with no-referrer don't get clipped ────────────────────── */
+img[referrerpolicy] {
+  image-rendering: auto;
+}
+

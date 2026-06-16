@@ -69,11 +69,28 @@ export default function Accomplished() {
 
 function AccomplishedCard({ dest }: { dest: Destination }) {
   const [imgErr, setImgErr] = useState(false);
+  const [retried, setRetried] = useState(false);
+
+  const handleImgError = () => {
+    if (!retried && dest.imageUrl) {
+      setRetried(true);
+      setTimeout(() => setImgErr(false), 800);
+    }
+    setImgErr(true);
+  };
+
   return (
     <div className="neu-extruded flex flex-col group transition-transform hover:scale-[1.01] duration-200" style={{ borderRadius: "var(--radius)", padding: "var(--space-inner)" }}>
       <div className="neu-inset overflow-hidden mb-4 relative" style={{ height: "160px", borderRadius: "var(--radius-sm)" }}>
         {dest.imageUrl && !imgErr ? (
-          <img src={dest.imageUrl} alt={dest.destination} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={() => setImgErr(true)} />
+          <img
+            src={retried ? `${dest.imageUrl}${dest.imageUrl.includes('?') ? '&' : '?'}retry=1` : dest.imageUrl}
+            alt={dest.destination}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            referrerPolicy="no-referrer"
+            loading="lazy"
+            onError={handleImgError}
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center" style={{ color: "var(--on-surface-variant)" }}>
             <span className="material-symbols-outlined" style={{ fontSize: "36px", opacity: 0.4 }}>image</span>

@@ -85,6 +85,10 @@ app.use("/api/trpc/*", rateLimiter(120, 60_000), async (c) => {
   });
 });
 
+// ── Admin email campaigns (isolated feature) ─────────────────────────────
+import adminEmailRouter from "./features/email-campaigns/router";
+app.route("/api/admin", adminEmailRouter);
+
 app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));
 
 export default app;

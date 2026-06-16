@@ -47,7 +47,17 @@ const statusColors: Record<string, string> = {
 /** Large bento card for "In Progress" style display */
 function LargeCard({ dest, onDelete, onStatusChange, onInvite }: { dest: Destination; onDelete: () => void; onStatusChange: (id: number, status: string) => void; onInvite: () => void }) {
   const [imgErr, setImgErr] = useState(false);
+  const [retried, setRetried] = useState(false);
   const progress = statusProgress[dest.status] ?? 30;
+
+  const handleImgError = () => {
+    if (!retried && dest.imageUrl) {
+      // Retry once with cache-bust after a short delay
+      setRetried(true);
+      setTimeout(() => setImgErr(false), 800);
+    }
+    setImgErr(true);
+  };
 
   return (
     <div
@@ -61,10 +71,12 @@ function LargeCard({ dest, onDelete, onStatusChange, onInvite }: { dest: Destina
       >
         {dest.imageUrl && !imgErr ? (
           <img
-            src={dest.imageUrl}
+            src={retried ? `${dest.imageUrl}${dest.imageUrl.includes('?') ? '&' : '?'}retry=1` : dest.imageUrl}
             alt={dest.destination}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={() => setImgErr(true)}
+            referrerPolicy="no-referrer"
+            loading="lazy"
+            onError={handleImgError}
           />
         ) : (
           <div
@@ -217,6 +229,15 @@ function LargeCard({ dest, onDelete, onStatusChange, onInvite }: { dest: Destina
 /** Compact row for "Upcoming" panel */
 function CompactRow({ dest, onDelete, onStatusChange, onInvite }: { dest: Destination; onDelete: () => void; onStatusChange: (id: number, status: string) => void; onInvite: () => void }) {
   const [imgErr, setImgErr] = useState(false);
+  const [retried, setRetried] = useState(false);
+
+  const handleImgError = () => {
+    if (!retried && dest.imageUrl) {
+      setRetried(true);
+      setTimeout(() => setImgErr(false), 800);
+    }
+    setImgErr(true);
+  };
 
   return (
     <div
@@ -230,10 +251,12 @@ function CompactRow({ dest, onDelete, onStatusChange, onInvite }: { dest: Destin
       >
         {dest.imageUrl && !imgErr ? (
           <img
-            src={dest.imageUrl}
+            src={retried ? `${dest.imageUrl}${dest.imageUrl.includes('?') ? '&' : '?'}retry=1` : dest.imageUrl}
             alt={dest.destination}
             className="w-full h-full object-cover"
-            onError={() => setImgErr(true)}
+            referrerPolicy="no-referrer"
+            loading="lazy"
+            onError={handleImgError}
           />
         ) : (
           <div

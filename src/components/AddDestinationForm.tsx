@@ -44,6 +44,7 @@ export default function AddDestinationForm({ onSuccess, activeFilter }: AddDesti
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [showBucketAnim, setShowBucketAnim] = useState(false);
   const [animItemName, setAnimItemName] = useState("");
+  const [showMobilePreview, setShowMobilePreview] = useState(false);
 
   // Live preview via the usePreview hook
   const { state: previewState, preview } = usePreview(destination);
@@ -93,6 +94,9 @@ export default function AddDestinationForm({ onSuccess, activeFilter }: AddDesti
       preview: preview ?? undefined,
     });
   };
+
+  // Determine if preview has content worth showing on mobile
+  const hasPreviewContent = previewState.status === "loading" || previewState.status === "success" || (previewState.status === "error" && preview);
 
   return (
     <>
@@ -239,9 +243,74 @@ export default function AddDestinationForm({ onSuccess, activeFilter }: AddDesti
             {createMutation.isPending ? "Adding..." : "Add to List"}
           </button>
         </form>
+
+        {/* ── Mobile preview toggle (visible only on < lg screens) ── */}
+        <div className="lg:hidden mt-4">
+          <button
+            onClick={() => setShowMobilePreview(!showMobilePreview)}
+            className="neu-subtle w-full flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-95"
+            style={{
+              borderRadius: "var(--radius)",
+              padding: "12px 16px",
+              border: "none",
+              cursor: "pointer",
+              backgroundColor: "var(--surface)",
+              fontFamily: "Manrope, sans-serif",
+              fontSize: "13px",
+              fontWeight: 600,
+              color: hasPreviewContent ? "var(--primary)" : "var(--on-surface-variant)",
+            }}
+          >
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "18px",
+                fontVariationSettings: showMobilePreview ? "'FILL' 1" : "'FILL' 0",
+              }}
+            >
+              {previewState.status === "loading" ? "hourglass_top" : "preview"}
+            </span>
+            {showMobilePreview ? "Hide Preview" : "Show Destination Preview"}
+            {previewState.status === "loading" && (
+              <span
+                className="inline-block"
+                style={{
+                  width: "14px",
+                  height: "14px",
+                  border: "2px solid var(--outline-variant)",
+                  borderTopColor: "var(--primary)",
+                  borderRadius: "50%",
+                  animation: "spin 0.8s linear infinite",
+                }}
+              />
+            )}
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "16px",
+                transition: "transform 0.3s",
+                transform: showMobilePreview ? "rotate(180deg)" : "rotate(0deg)",
+              }}
+            >
+              expand_more
+            </span>
+          </button>
+
+          {/* Mobile preview card */}
+          {showMobilePreview && (
+            <div className="mt-4 mobile-preview-enter">
+              <DestinationPreview
+                state={previewState}
+                preview={preview}
+                destination={destination}
+                goalTitle={goalTitle}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* ── Live preview card (hidden on mobile to save space) ── */}
+      {/* ── Desktop live preview card (side-by-side, lg+ only) ── */}
       <div className="hidden lg:block flex-1">
         <DestinationPreview
           state={previewState}
@@ -254,3 +323,4 @@ export default function AddDestinationForm({ onSuccess, activeFilter }: AddDesti
     </>
   );
 }
+

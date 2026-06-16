@@ -77,6 +77,7 @@ function PreviewFilled({ preview, destination, goalTitle }: {
             alt={displayName}
             className="w-full h-full object-cover"
             style={{ borderRadius: "var(--radius-md)" }}
+            referrerPolicy="no-referrer"
             onError={() => setImgError(true)}
           />
         ) : (

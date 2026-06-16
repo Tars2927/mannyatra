@@ -73,12 +73,62 @@ async function fetchPageImage(title: string): Promise<string> {
 }
 
 /**
- * Generate an Unsplash-powered fallback image URL for a destination.
- * Uses Unsplash Source (free, no API key needed).
+ * Fallback: search Wikimedia Commons for a relevant image.
+ * Uses the search API to find photos related to the destination name.
  */
-function getUnsplashFallback(destination: string): string {
-  const query = encodeURIComponent(destination.trim());
-  return `https://source.unsplash.com/800x600/?${query},travel,landscape`;
+async function fetchCommonsImage(destination: string): Promise<string> {
+  const params = new URLSearchParams({
+    action: "query",
+    generator: "search",
+    gsrsearch: `${destination} landscape OR city OR landmark`,
+    gsrnamespace: "6", // File namespace
+    gsrlimit: "5",
+    prop: "imageinfo",
+    iiprop: "url|mime",
+    iiurlwidth: "800",
+    format: "json",
+    origin: "*",
+  });
+
+  try {
+    const res = await fetchWithTimeout(`https://commons.wikimedia.org/w/api.php?${params}`, 4000);
+    if (!res.ok) return "";
+
+    const data = await res.json() as {
+      query?: {
+        pages?: Record<string, {
+          imageinfo?: Array<{ thumburl?: string; url?: string; mime?: string }>;
+        }>;
+      };
+    };
+
+    const pages = data?.query?.pages;
+    if (!pages) return "";
+
+    // Find the first result that's actually a photo (JPEG/PNG, not SVG/PDF)
+    for (const page of Object.values(pages)) {
+      const info = page?.imageinfo?.[0];
+      if (!info) continue;
+      const mime = info.mime ?? "";
+      if (mime.startsWith("image/jpeg") || mime.startsWith("image/png") || mime.startsWith("image/webp")) {
+        const url = sanitizeUrl(info.thumburl) || sanitizeUrl(info.url);
+        if (url) return url;
+      }
+    }
+    return "";
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Generate a deterministic placeholder image URL via DiceBear.
+ * Creates a unique, colorful abstract pattern based on the destination name.
+ * Always returns a valid, loadable image.
+ */
+function getPlaceholderImage(destination: string): string {
+  const seed = encodeURIComponent(destination.trim().toLowerCase());
+  return `https://api.dicebear.com/9.x/shapes/svg?seed=${seed}&size=800&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
 }
 
 /** Step 2: Fetch the summary for a known page title. */
@@ -101,19 +151,29 @@ async function fetchSummary(title: string): Promise<PreviewData | null> {
   // Reject disambiguation pages — not useful as destination previews
   if (d.type === "disambiguation") return null;
 
-  // Try summary API images first
-  let image =
-    sanitizeUrl(d.originalimage?.source) ||
-    sanitizeUrl(d.thumbnail?.source);
+  // Try summary API images — prefer thumbnail (pre-sized by Wikipedia, loads fast)
+  // Don't use originalimage — it can be 3000-4000px wide and multi-MB
+  let image = sanitizeUrl(d.thumbnail?.source);
 
-  // Fallback: try Wikipedia's pageimages API
+  // If no thumbnail, try originalimage but DON'T rewrite the URL
+  // (Wikimedia only allows specific predefined thumbnail sizes)
+  if (!image) {
+    image = sanitizeUrl(d.originalimage?.source);
+  }
+
+  // Fallback 1: try Wikipedia's pageimages API
   if (!image) {
     image = await fetchPageImage(title);
   }
 
-  // Final fallback: Unsplash photo search
+  // Fallback 2: try Wikimedia Commons search
   if (!image) {
-    image = getUnsplashFallback(d.title || title);
+    image = await fetchCommonsImage(d.title || title);
+  }
+
+  // Fallback 3: deterministic placeholder
+  if (!image) {
+    image = getPlaceholderImage(d.title || title);
   }
 
   const lat = typeof d.coordinates?.lat === "number" ? d.coordinates.lat : null;
@@ -148,24 +208,46 @@ function sanitizeUrl(url?: string): string {
 /**
  * Main export: look up a destination via Wikipedia.
  * Returns a PreviewData object; falls back gracefully on any error.
+ *
+ * Image fallback chain:
+ * 1. Wikipedia summary API (originalimage / thumbnail)
+ * 2. Wikipedia pageimages API
+ * 3. Wikimedia Commons search
+ * 4. DiceBear deterministic placeholder
  */
 export async function fetchDestinationPreview(destination: string): Promise<PreviewData> {
+  if (!destination.trim()) {
+    return {
+      source: "fallback",
+      name: "",
+      subtitle: "",
+      summary: "",
+      image: "",
+      lat: null,
+      lon: null,
+      url: "",
+    };
+  }
+
+  const fallbackImage = getPlaceholderImage(destination);
   const fallback: PreviewData = {
     source: "fallback",
     name: destination,
     subtitle: "",
     summary: "",
-    image: destination.trim() ? getUnsplashFallback(destination) : "",
+    image: fallbackImage,
     lat: null,
     lon: null,
     url: "",
   };
 
-  if (!destination.trim()) return { ...fallback, name: "", image: "" };
-
   try {
     const title = await searchTitle(destination);
-    if (!title) return fallback;
+    if (!title) {
+      // No Wikipedia match — try Commons directly before falling back
+      const commonsImage = await fetchCommonsImage(destination);
+      return { ...fallback, image: commonsImage || fallbackImage };
+    }
 
     const preview = await fetchSummary(title);
     if (!preview) return fallback;
