@@ -2,8 +2,12 @@ import { z } from "zod";
 import { eq, and, sql } from "drizzle-orm";
 import { createRouter, authedQuery } from "./middleware";
 import { getDb } from "./queries/connection";
-import { destinations } from "../db/schema";
+import { destinations, destinationPhotos } from "../db/schema";
 import { fetchDestinationPreview } from "./lib/wikipedia";
+
+const MAX_PHOTOS_PER_DEST = 5;
+const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 // Zod schema for the preview object sent from the client
 const previewSchema = z.object({
@@ -27,6 +31,34 @@ export const destinationRouter = createRouter({
       .where(eq(destinations.userId, userId))
       .orderBy(sql`${destinations.createdAt} DESC`);
   }),
+
+  getById: authedQuery
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = getDb();
+      const userId = ctx.user.unionId;
+
+      const [dest] = await db
+        .select()
+        .from(destinations)
+        .where(and(eq(destinations.id, input.id), eq(destinations.userId, userId)))
+        .limit(1);
+
+      if (!dest) throw new Error("Destination not found");
+
+      const photos = await db
+        .select({
+          id: destinationPhotos.id,
+          caption: destinationPhotos.caption,
+          mimeType: destinationPhotos.mimeType,
+          createdAt: destinationPhotos.createdAt,
+        })
+        .from(destinationPhotos)
+        .where(eq(destinationPhotos.destinationId, input.id))
+        .orderBy(sql`${destinationPhotos.createdAt} DESC`);
+
+      return { ...dest, photos };
+    }),
 
   stats: authedQuery.query(async ({ ctx }) => {
     const db = getDb();
@@ -143,6 +175,7 @@ export const destinationRouter = createRouter({
         startDate: z.string().max(20).optional(),
         endDate: z.string().max(20).optional(),
         imageUrl: z.string().optional(),
+        notes: z.string().max(1000).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -157,6 +190,7 @@ export const destinationRouter = createRouter({
       if (input.startDate !== undefined) updateData.startDate = input.startDate;
       if (input.endDate !== undefined) updateData.endDate = input.endDate;
       if (input.imageUrl !== undefined) updateData.imageUrl = input.imageUrl;
+      if (input.notes !== undefined) updateData.notes = input.notes;
 
       await db
         .update(destinations)
@@ -223,4 +257,103 @@ export const destinationRouter = createRouter({
 
     return { total: needsFix.length, updated };
   }),
+
+  /* ── Photo endpoints ──────────────────────────────────────────────────── */
+
+  uploadPhoto: authedQuery
+    .input(
+      z.object({
+        destinationId: z.number(),
+        data: z.string(), // base64 data URL
+        mimeType: z.string(),
+        caption: z.string().max(255).optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+      const userId = ctx.user.unionId;
+
+      // Verify ownership
+      const [dest] = await db
+        .select()
+        .from(destinations)
+        .where(and(eq(destinations.id, input.destinationId), eq(destinations.userId, userId)))
+        .limit(1);
+      if (!dest) throw new Error("Destination not found or you don't own it");
+
+      // Validate mime type
+      if (!ALLOWED_MIME_TYPES.includes(input.mimeType)) {
+        throw new Error("Only JPEG, PNG, and WebP images are allowed");
+      }
+
+      // Validate size (base64 is ~33% larger than binary)
+      const estimatedBytes = (input.data.length * 3) / 4;
+      if (estimatedBytes > MAX_PHOTO_SIZE_BYTES) {
+        throw new Error("Image exceeds 5MB size limit");
+      }
+
+      // Check photo count limit
+      const existing = await db
+        .select({ id: destinationPhotos.id })
+        .from(destinationPhotos)
+        .where(eq(destinationPhotos.destinationId, input.destinationId));
+      if (existing.length >= MAX_PHOTOS_PER_DEST) {
+        throw new Error(`Maximum of ${MAX_PHOTOS_PER_DEST} photos per destination`);
+      }
+
+      const [photo] = await db
+        .insert(destinationPhotos)
+        .values({
+          destinationId: input.destinationId,
+          userId,
+          data: input.data,
+          mimeType: input.mimeType,
+          caption: input.caption ?? null,
+        })
+        .returning();
+
+      return { id: photo.id, caption: photo.caption, mimeType: photo.mimeType, createdAt: photo.createdAt };
+    }),
+
+  deletePhoto: authedQuery
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+      const userId = ctx.user.unionId;
+
+      await db
+        .delete(destinationPhotos)
+        .where(and(eq(destinationPhotos.id, input.id), eq(destinationPhotos.userId, userId)));
+
+      return { success: true };
+    }),
+
+  getPhoto: authedQuery
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx: _ctx, input }) => {
+      const db = getDb();
+      const [photo] = await db
+        .select()
+        .from(destinationPhotos)
+        .where(eq(destinationPhotos.id, input.id))
+        .limit(1);
+      if (!photo) throw new Error("Photo not found");
+      return photo;
+    }),
+
+  listPhotos: authedQuery
+    .input(z.object({ destinationId: z.number() }))
+    .query(async ({ ctx: _ctx, input }) => {
+      const db = getDb();
+      return db
+        .select({
+          id: destinationPhotos.id,
+          caption: destinationPhotos.caption,
+          mimeType: destinationPhotos.mimeType,
+          createdAt: destinationPhotos.createdAt,
+        })
+        .from(destinationPhotos)
+        .where(eq(destinationPhotos.destinationId, input.destinationId))
+        .orderBy(sql`${destinationPhotos.createdAt} DESC`);
+    }),
 });

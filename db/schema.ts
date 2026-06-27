@@ -43,6 +43,7 @@ export const destinations = pgTable("destinations", {
   imageUrl: text("image_url"),
   lat: real("lat"),
   lon: real("lon"),
+  notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -87,3 +88,18 @@ export const inviteComments = pgTable("invite_comments", {
 
 export type InviteComment = typeof inviteComments.$inferSelect;
 export type InsertInviteComment = typeof inviteComments.$inferInsert;
+
+/* ── Destination Photos ─────────────────────────────────────────────────── */
+
+export const destinationPhotos = pgTable("destination_photos", {
+  id: serial("id").primaryKey(),
+  destinationId: integer("destination_id").notNull(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  data: text("data").notNull(),
+  mimeType: varchar("mime_type", { length: 50 }).notNull(),
+  caption: varchar("caption", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type DestinationPhoto = typeof destinationPhotos.$inferSelect;
+export type InsertDestinationPhoto = typeof destinationPhotos.$inferInsert;

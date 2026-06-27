@@ -654,3 +654,268 @@ img[referrerpolicy] {
   image-rendering: auto;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════
+   DESTINATION DETAIL PAGE
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Photo Gallery Grid ──────────────────────────────────────────────────── */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 480px) {
+  .photo-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.photo-grid-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.photo-grid-item:hover .photo-thumb {
+  transform: scale(1.08);
+}
+
+.photo-grid-item:hover .photo-caption-overlay {
+  opacity: 1;
+}
+
+.photo-caption-overlay {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* ── Photo Upload Zone ───────────────────────────────────────────────────── */
+.photo-upload-zone {
+  background: var(--surface);
+  box-shadow:
+    inset 2px 2px 5px var(--shadow-dark),
+    inset -2px -2px 5px var(--shadow-light);
+  border: 2px dashed var(--outline-variant);
+}
+
+.photo-upload-zone:hover,
+.photo-upload-zone-active {
+  border-color: var(--primary);
+  background: var(--surface-container-low);
+}
+
+.photo-upload-zone-active {
+  transform: scale(1.03);
+}
+
+/* ── Lightbox Modal ──────────────────────────────────────────────────────── */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+  backdrop-filter: blur(12px);
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: modalSlideUp 0.3s ease-out;
+}
+
+.lightbox-image {
+  max-width: 100%;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
+.lightbox-nav {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.lightbox-nav:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.lightbox-nav:disabled {
+  cursor: not-allowed;
+}
+
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: scale(1.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Notes Editor ────────────────────────────────────────────────────────── */
+.notes-textarea::placeholder {
+  color: var(--outline-variant);
+  font-style: italic;
+}
+
+.notes-textarea:focus {
+  outline: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — Detail Page, Gallery, Notes, Lightbox
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tablet (≤1024px) ────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  /* Stack the 3-column grid to single column on tablets */
+  .detail-content-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .detail-content-grid > .detail-col-left {
+    order: 1;
+  }
+  .detail-content-grid > .detail-col-right {
+    order: 2;
+  }
+}
+
+/* ── Phone (≤640px) ──────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Shrink hero */
+  .detail-hero .detail-hero-img-wrap {
+    height: 200px !important;
+  }
+  .detail-hero .detail-hero-overlay-content {
+    padding: 20px !important;
+  }
+  .detail-hero .detail-hero-title {
+    font-size: 22px !important;
+  }
+  .detail-hero .detail-hero-progress-bar {
+    padding: 0 20px 14px !important;
+  }
+
+  /* Info cards: 2 columns instead of 4 */
+  .detail-info-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Photo grid: 2 columns */
+  .photo-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  /* Lightbox: full width on mobile */
+  .lightbox-content {
+    max-width: 96vw;
+    max-height: 94vh;
+  }
+  .lightbox-image {
+    max-height: 65vh;
+    border-radius: 8px;
+  }
+  .lightbox-bar {
+    gap: 10px;
+    padding: 10px 14px;
+  }
+  .lightbox-nav {
+    width: 32px;
+    height: 32px;
+  }
+  .lightbox-close {
+    top: 10px !important;
+    right: 10px !important;
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  /* Notes: reduce padding */
+  .notes-textarea {
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* ── Small phone (≤400px) ────────────────────────────────────────────────── */
+@media (max-width: 400px) {
+  .detail-hero .detail-hero-img-wrap {
+    height: 160px !important;
+  }
+  .detail-hero .detail-hero-title {
+    font-size: 18px !important;
+  }
+
+  /* Info cards: stack vertically */
+  .detail-info-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* Photo grid: single column */
+  .photo-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+
+  .lightbox-image {
+    max-height: 55vh;
+  }
+}
+
+/* ── Touch device optimizations ──────────────────────────────────────────── */
+@media (hover: none) {
+  /* Disable hover effects that feel janky on touch */
+  .photo-grid-item:hover .photo-thumb {
+    transform: none;
+  }
+  .photo-caption-overlay {
+    opacity: 1; /* Always show captions on touch */
+  }
+  .photo-upload-zone:hover {
+    border-color: var(--outline-variant);
+    background: var(--surface);
+  }
+  /* Larger tap targets on touch */
+  .lightbox-nav {
+    width: 44px;
+    height: 44px;
+  }
+  .lightbox-close {
+    width: 44px !important;
+    height: 44px !important;
+  }
+}

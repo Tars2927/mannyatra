@@ -14,7 +14,7 @@ const app = new Hono();
 
 // ── Security middleware ───────────────────────────────────────────────────────
 app.use(secureHeaders());
-app.use(bodyLimit({ maxSize: 2 * 1024 * 1024 })); // 2MB limit
+app.use(bodyLimit({ maxSize: 8 * 1024 * 1024 })); // 8MB limit (for photo uploads)
 
 // CORS — restrict in production to same-origin only
 app.use(

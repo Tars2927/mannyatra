@@ -9,6 +9,7 @@ import Invite from "./pages/Invite"
 import AdminLogin from "./pages/AdminLogin"
 import AdminEmail from "./pages/AdminEmail"
 import NotFound from "./pages/NotFound"
+import DestinationDetail from "./pages/DestinationDetail"
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
       <Route path="/accomplished" element={<Accomplished />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/destination/:id" element={<DestinationDetail />} />
       <Route path="/invite/:code" element={<Invite />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/email" element={<AdminEmail />} />

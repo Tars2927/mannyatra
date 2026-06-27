@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { trpc } from "@/providers/trpc";
 import type { Destination } from "@db/schema";
 import type { StatusFilter } from "./StatusFilters";
@@ -48,6 +49,7 @@ const statusColors: Record<string, string> = {
 function LargeCard({ dest, onDelete, onStatusChange, onInvite }: { dest: Destination; onDelete: () => void; onStatusChange: (id: number, status: string) => void; onInvite: () => void }) {
   const [imgErr, setImgErr] = useState(false);
   const [retried, setRetried] = useState(false);
+  const navigate = useNavigate();
   const progress = statusProgress[dest.status] ?? 30;
 
   const handleImgError = () => {
@@ -63,6 +65,7 @@ function LargeCard({ dest, onDelete, onStatusChange, onInvite }: { dest: Destina
     <div
       className="neu-extruded flex flex-col h-full group cursor-pointer transition-transform hover:scale-[1.01] duration-200"
       style={{ borderRadius: "var(--radius)", padding: "var(--space-inner)" }}
+      onClick={() => navigate(`/destination/${dest.id}`)}
     >
       {/* Image */}
       <div
@@ -230,6 +233,7 @@ function LargeCard({ dest, onDelete, onStatusChange, onInvite }: { dest: Destina
 function CompactRow({ dest, onDelete, onStatusChange, onInvite }: { dest: Destination; onDelete: () => void; onStatusChange: (id: number, status: string) => void; onInvite: () => void }) {
   const [imgErr, setImgErr] = useState(false);
   const [retried, setRetried] = useState(false);
+  const navigate = useNavigate();
 
   const handleImgError = () => {
     if (!retried && dest.imageUrl) {
@@ -241,8 +245,9 @@ function CompactRow({ dest, onDelete, onStatusChange, onInvite }: { dest: Destin
 
   return (
     <div
-      className="neu-inset flex gap-4 items-center"
+      className="neu-inset flex gap-4 items-center cursor-pointer hover:opacity-90 transition-opacity"
       style={{ borderRadius: "var(--radius-sm)", padding: "14px" }}
+      onClick={() => navigate(`/destination/${dest.id}`)}
     >
       {/* Thumbnail */}
       <div

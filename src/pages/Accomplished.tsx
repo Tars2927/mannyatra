@@ -70,6 +70,7 @@ export default function Accomplished() {
 function AccomplishedCard({ dest }: { dest: Destination }) {
   const [imgErr, setImgErr] = useState(false);
   const [retried, setRetried] = useState(false);
+  const navigate = useNavigate();
 
   const handleImgError = () => {
     if (!retried && dest.imageUrl) {
@@ -80,7 +81,7 @@ function AccomplishedCard({ dest }: { dest: Destination }) {
   };
 
   return (
-    <div className="neu-extruded flex flex-col group transition-transform hover:scale-[1.01] duration-200" style={{ borderRadius: "var(--radius)", padding: "var(--space-inner)" }}>
+    <div className="neu-extruded flex flex-col group cursor-pointer transition-transform hover:scale-[1.01] duration-200" style={{ borderRadius: "var(--radius)", padding: "var(--space-inner)" }} onClick={() => navigate(`/destination/${dest.id}`)}>
       <div className="neu-inset overflow-hidden mb-4 relative" style={{ height: "160px", borderRadius: "var(--radius-sm)" }}>
         {dest.imageUrl && !imgErr ? (
           <img
