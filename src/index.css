@@ -638,6 +638,17 @@
   }
 }
 
+/* ── Bottom Nav clearance ─────────────────────────────────────────────────
+   The fixed BottomNav is ~80px tall and only visible below md (768px).
+   Pages set `padding: var(--space-container)` as an inline style, which
+   overwrites Tailwind's pb-24. This rule ensures content never hides
+   behind the nav on mobile. ──────────────────────────────────────────── */
+@media (max-width: 767px) {
+  main {
+    padding-bottom: 100px !important;
+  }
+}
+
 /* ── Mobile preview expand/collapse ──────────────────────────────────────── */
 @keyframes previewSlideDown {
   0%   { opacity: 0; max-height: 0; transform: translateY(-8px); }
